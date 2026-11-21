@@ -16,8 +16,7 @@ published formula, with credit:
 (<https://github.com/sgraf812/distillery/blob/a5cc0e23183f92e37dfbf647a39dd8d8d30df960/Distillery/WRP.lean#L46-L49>),
 over the concretizations of
 <https://github.com/sgraf812/distillery/blob/a5cc0e23183f92e37dfbf647a39dd8d8d30df960/Distillery/Concretization.lean#L28-L42>.
-The program logic is the toolchain's `Std.WP`, and the package depends on nothing else. The
-definitions are restricted to a single exception layer: the exception postcondition map
+The program logic is the toolchain's `Std.WP`. The definitions are restricted to a single exception layer: the exception postcondition map
 `ePosts γ E` is a function `eps : AE → CE` from abstract to concrete exception postconditions.
 They are to be replaced by distillery's when distillery has a licence and a release toolchain.
 
