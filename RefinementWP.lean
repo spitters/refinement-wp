@@ -6,6 +6,7 @@ Authors: CatCrypt Contributors
 module
 
 public import RefinementWP.WRP
+public import RefinementWP.Compose
 
 /-!
 # refinement-wp
