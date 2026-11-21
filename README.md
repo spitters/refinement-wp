@@ -4,8 +4,7 @@ A Lean 4 package with one definition of program refinement over the toolchain's 
 the refinement weakest precondition `wrp` of S. Graf's
 [distillery](https://github.com/sgraf812/distillery), written here from its published formula
 ([`WRP.lean`, lines 46-49](https://github.com/sgraf812/distillery/blob/a5cc0e23183f92e37dfbf647a39dd8d8d30df960/Distillery/WRP.lean#L46-L49)),
-with credit. The package depends only on the Lean toolchain, so that compilers, program
-logics and IR interpreters can state their refinements against the same definition.
+with credit.
 
 ## Contents
 
@@ -33,8 +32,6 @@ require «refinement-wp» from git "https://github.com/spitters/refinement-wp" @
 |---|---|
 | `main` | v4.35.0 |
 | `lean-4.36` | v4.36.0 |
-
-Build with `lake build`.
 
 ## Relation to distillery
 
