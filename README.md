@@ -5,7 +5,7 @@ formula of S. Graf's [distillery](https://github.com/sgraf812/distillery/blob/a5
 with one exception layer: concretizations, `wrp`, `Refines`, the introduction and transport
 rules, monotone predicate transformers as abstract programs, and the characterization of the
 refinement of a partial state transformer as forward simulation. The package depends only on
-the Lean toolchain (v4.35.0), so that compilers, program logics and IR interpreters can state
+the Lean toolchain (v4.36.0 on this branch), so that compilers, program logics and IR interpreters can state
 their refinements with one definition.
 
 Build: `lake build RefinementWP`.

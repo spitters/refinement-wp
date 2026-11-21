@@ -122,7 +122,7 @@ theorem wrp_intro
       meet P (γ.pred (wp a Qa Ea)) ⊑ wp c (γ.post Q Qa) (eps Ea)) :
     P ⊑ wrp γ eps c a Q :=
   le_iInf _ _ fun Qa => le_iInf _ _ fun Ea =>
-    le_himp (PartialOrder.rel_trans meet_le_comm (h Qa Ea))
+    le_himp_of_meet_le_left (PartialOrder.rel_trans meet_le_comm (h Qa Ea))
 
 /-- Elimination rule of `wrp` (transport): under `P ⊑ wrp …`, each `wp` fact of the abstract
     program, concretized and met with `P`, entails the corresponding concrete `wp` fact. -/
@@ -195,7 +195,8 @@ theorem refines_optD_iff {SR : σ → A → Prop} {Rv : B → α → Prop} {f : 
   · intro h
     apply wrp_intro
     intro Qa Ea s hs
-    grind only [= meet_apply, = top_prop_eq, Concretization.ofStateRel.eq_def, wp_optD_apply,
+    rw [meet_apply, meet_prop_eq_and] at hs
+    grind only [= top_prop_eq, Concretization.ofStateRel.eq_def, wp_optD_apply,
       Concretization.post_apply]
 
 end ForwardSimulation
