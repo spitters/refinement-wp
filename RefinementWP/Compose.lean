@@ -90,10 +90,10 @@ theorem post_comp_le [Heyting CPred] {γ₂ : Concretization CPred BPred}
   apply iSup_le
   intro bv
   refine PartialOrder.rel_trans (meet_mono_right (hsup _)) ?_
-  apply meet_le_of_le_himp_comm
+  apply meet_le_of_le_himp_left
   apply iSup_le
   intro av
-  apply le_himp
+  apply le_himp_of_meet_le_left
   refine PartialOrder.rel_trans ?_ (le_iSup _ av)
   apply le_meet
   · refine PartialOrder.rel_trans ?_ (le_iSup _ bv)
@@ -144,10 +144,10 @@ theorem Refines.refl (P : CPred) (c : CProg) :
     Refines P Concretization.id (fun e : CE => e) c c (eqRel (CPred := CPred)) := by
   apply wrp_intro
   intro Qa Ea
-  refine PartialOrder.rel_trans (meet_le_right _ _) (WP.wp_consequence _ _ _ _ ?_)
+  refine PartialOrder.rel_trans (meet_le_right _ _) (WP.wp_monotone_post ?_)
   intro v
   refine PartialOrder.rel_trans ?_ (le_iSup _ v)
-  exact le_meet _ _ _ (le_ofProp _ _ rfl) PartialOrder.rel_refl
+  exact le_meet _ _ _ (CompleteLattice.le_ofProp _ _ rfl) PartialOrder.rel_refl
 
 end Square
 
@@ -172,7 +172,7 @@ theorem Refines.vcomp_top [Heyting BPred] [Heyting CPred] (hsup : γ₂.SupPrese
   intro Qa Ea
   exact PartialOrder.rel_trans (γ₂.pred_mono (h₁ Qa Ea))
     (PartialOrder.rel_trans (h₂ _ _)
-      (WP.wp_consequence _ _ _ _ (Concretization.post_comp_le hsup Q₂ Q₁ Qa)))
+      (WP.wp_monotone_post (Concretization.post_comp_le hsup Q₂ Q₁ Qa)))
 
 /-- Vertical pasting under preconditions: from `Refines P₁ γ₁ eps₁ b a Q₁` and
     `Refines P₂ γ₂ eps₂ c b Q₂`, `c` refines `a` along the composite under the precondition
@@ -187,7 +187,7 @@ theorem Refines.vcomp [Heyting BPred] [Heyting CPred] {P₁ : BPred} {P₂ : CPr
   have k₁ := wrp_transport h₁ Qa Ea
   have k₂ := wrp_transport h₂ (γ₁.post Q₁ Qa) (eps₁ Ea)
   refine PartialOrder.rel_trans ?_ (PartialOrder.rel_trans k₂
-    (WP.wp_consequence _ _ _ _ (Concretization.post_comp_le hsup Q₂ Q₁ Qa)))
+    (WP.wp_monotone_post (Concretization.post_comp_le hsup Q₂ Q₁ Qa)))
   apply le_meet
   · exact meet_le_of_left_le (meet_le_left _ _)
   · exact PartialOrder.rel_trans (meet_mono_left (meet_le_right _ _))
@@ -217,7 +217,7 @@ theorem Refines.bind [Heyting CPred] {γ : Concretization CPred APred} {eps : AE
   refine PartialOrder.rel_trans (meet_mono_right (γ.pred_mono (hbind Qa Ea))) ?_
   refine PartialOrder.rel_trans (wrp_transport hc _ Ea) ?_
   refine PartialOrder.rel_trans ?_ (WPMonad.bind_le_wp_bind c k _ _)
-  apply WP.wp_consequence
+  apply WP.wp_monotone_post
   intro cv
   apply iSup_le
   intro av
