@@ -1,0 +1,5 @@
+name = "refinement-wp"
+defaultTargets = ["RefinementWP"]
+
+[[lean_lib]]
+name = "RefinementWP"
