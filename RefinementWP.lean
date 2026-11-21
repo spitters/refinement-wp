@@ -7,6 +7,7 @@ module
 
 public import RefinementWP.WRP
 public import RefinementWP.Compose
+public import RefinementWP.Classes
 
 /-!
 # refinement-wp
