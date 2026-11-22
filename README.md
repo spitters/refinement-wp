@@ -16,12 +16,12 @@ in which XDijkstra is a quantale-graded relational Dijkstra monad.
 
 A concretization `γ` maps abstract assertions monotonically to concrete ones, and a relation `Q`
 relates concrete to abstract return values. The refinement weakest precondition
-[`wrp`](RefinementWP/WRP.lean#L104) of a concrete program `c` and an abstract program `a` is the
+[`wrp`](RefinementWP/WRP.lean#L105) of a concrete program `c` and an abstract program `a` is the
 weakest concrete assertion `P` such that `P ⊓ γ (wp a Qa) ⊑ wp c (γ.post Q Qa)` for every
 abstract postcondition `Qa`. It is the residual of that meet: `P` entails `wrp` exactly when
-every such inequality holds ([`wrp_intro`](RefinementWP/WRP.lean#L119),
-[`wrp_transport`](RefinementWP/WRP.lean#L128)), and
-[`Refines`](RefinementWP/WRP.lean#L110) is this entailment.
+every such inequality holds ([`wrp_intro`](RefinementWP/WRP.lean#L120),
+[`wrp_transport`](RefinementWP/WRP.lean#L129)), and
+[`Refines`](RefinementWP/WRP.lean#L111) is this entailment.
 
 In categorical terms, `wrp` is the end `∫_Qa γ (wp a Qa) ⇨ wp c (γ.post Q Qa)`, the object of
 natural transformations from `γ ∘ wp a` to `wp c ∘ γ.post Q` in the Heyting algebra of concrete
@@ -46,9 +46,9 @@ compiler, and horizontal pasting is compatibility with sequencing.
 ## Forward simulation
 
 Abstract programs are monotone predicate transformers, as in the refinement calculus
-([`MonoPT`](RefinementWP/WRP.lean#L140)). When the weakest precondition of `c` is that of a step
+([`MonoPT`](RefinementWP/WRP.lean#L141)). When the weakest precondition of `c` is that of a step
 relation `T`, refinement of a partial state transformer `f` by `c` is forward simulation of `f` by
-`T` from related states ([`refines_optD_iff`](RefinementWP/WRP.lean#L180)).
+`T` from related states ([`refines_optD_iff`](RefinementWP/WRP.lean#L181)).
 
 ## Relation to CatCrypt-core
 
