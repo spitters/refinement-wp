@@ -50,6 +50,18 @@ Abstract programs are monotone predicate transformers, as in the refinement calc
 relation `T`, refinement of a partial state transformer `f` by `c` is forward simulation of `f` by
 `T` from related states ([`refines_optD_iff`](RefinementWP/WRP.lean#L181)).
 
+## Refinement in VeIR
+
+In CatCrypt's [fork](https://github.com/spitters/veir-catcrypt/tree/daa74900a698b7b85246a882266bf3a6bd49523c)
+of [VeIR](https://github.com/opencompl/veir), a compiler IR in Lean, the interpreter's results have a
+[weakest precondition](https://github.com/spitters/veir-catcrypt/blob/daa74900a698b7b85246a882266bf3a6bd49523c/Veir/Interpreter/Refinement/WRP.lean#L29)
+in which undefined behavior and failure establish no postcondition. VeIR's refinement of a source
+result by a target result is refinement in the sense of `wrp` along the identity
+([`interp_isRefinedBy_iff_refines`](https://github.com/spitters/veir-catcrypt/blob/daa74900a698b7b85246a882266bf3a6bd49523c/Veir/Interpreter/Refinement/WRP.lean#L80)).
+VeIR's refinement of functions is, for all refining arguments, `wrp` refinement of their state
+transformers at the concretization of memory refinement
+([`functionOp_isRefinedBy_iff_refines`](https://github.com/spitters/veir-catcrypt/blob/daa74900a698b7b85246a882266bf3a6bd49523c/Veir/Interpreter/Refinement/WRP.lean#L188)).
+
 ## Relation to CatCrypt-core
 
 In [CatCrypt-core](https://github.com/spitters/CatCrypt-core), relational refinement
