@@ -9,11 +9,14 @@ public import RefinementWP.WRP
 public import RefinementWP.Compose
 public import RefinementWP.Classes
 public import RefinementWP.Tactic
+public import RefinementWP.Step
 
 /-!
 # refinement-wp
 
 The root of the package: the refinement weakest precondition `RefinementWP.wrp` and its
 refinement judgement `RefinementWP.Refines` (`RefinementWP.WRP`), their composition
-(`RefinementWP.Compose`, `RefinementWP.Classes`) and the tactic `wrp_vcgen` (`RefinementWP.Tactic`).
+(`RefinementWP.Compose`, `RefinementWP.Classes`), the tactic `wrp_vcgen`
+(`RefinementWP.Tactic`), and the registry `RefinesCall` with the tactics `wrp_step` and
+`wrp_steps` (`RefinementWP.Step`).
 -/
