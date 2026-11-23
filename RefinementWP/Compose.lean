@@ -328,4 +328,82 @@ theorem Refines.bind [Heyting CPred] {γ : Concretization CPred APred} {eps : AE
 
 end Horizontal
 
+/-! ## The concrete postcondition as a concretization -/
+
+namespace Concretization
+
+section Conjoint
+
+variable {CPred APred : Type w} [Assertion CPred] [Assertion APred]
+
+/-- `γ.post R` is monotone in the abstract postcondition. -/
+theorem post_mono (γ : Concretization CPred APred) {CVal AVal : Type v}
+    (R : CVal → AVal → CPred) {Q Q' : AVal → APred} (h : Q ⊑ Q') : γ.post R Q ⊑ γ.post R Q' := by
+  intro cv
+  exact iSup_le _ _ fun av =>
+    le_iSup_of_le av (meet_mono_right (γ.pred_mono (h av)))
+
+/-- Along the identity concretization and the equality relation, the concrete postcondition is
+    the abstract postcondition. -/
+theorem id_post_eqRel {Val : Type v} (Q : Val → APred) :
+    Concretization.id.post (eqRel (CPred := APred)) Q = Q := by
+  funext v
+  apply PartialOrder.rel_antisymm
+  · apply iSup_le
+    intro v'
+    change CompleteLattice.ofProp (v = v') ⊓ Q v' ⊑ Q v
+    rw [CompleteLattice.ofProp_meet_le_eq_imp]
+    rintro rfl
+    exact PartialOrder.rel_refl
+  · refine PartialOrder.rel_trans ?_ (le_iSup _ v)
+    exact le_meet _ _ _ (CompleteLattice.le_ofProp _ _ rfl) PartialOrder.rel_refl
+
+/-- The concrete postcondition of a composite concretization at the composite return relation
+    is the composite of the concrete postconditions, when the outer concretization preserves
+    suprema and binary meets. -/
+theorem comp_post_relComp {BPred : Type w} [Assertion BPred] [Heyting CPred]
+    {γ₂ : Concretization CPred BPred} {γ₁ : Concretization BPred APred} {CVal BVal AVal : Type v}
+    (hsup : γ₂.SupPreserving.{_, v}) (hmeet : γ₂.MeetPreserving)
+    (Q₂ : CVal → BVal → CPred) (Q₁ : BVal → AVal → BPred) (Qa : AVal → APred) :
+    (γ₂.comp γ₁).post (γ₂.relComp Q₂ Q₁) Qa = γ₂.post Q₂ (γ₁.post Q₁ Qa) := by
+  apply PartialOrder.rel_antisymm _ (post_comp_le hsup Q₂ Q₁ Qa)
+  intro cv
+  apply iSup_le
+  intro av
+  apply meet_le_of_le_himp
+  apply iSup_le
+  intro bv
+  apply Lean.Order.le_himp
+  refine le_iSup_of_le bv (le_meet _ _ _ ?_ ?_)
+  · exact meet_le_of_left_le (meet_le_left _ _)
+  · refine PartialOrder.rel_trans ?_ (γ₂.pred_mono (le_iSup _ av))
+    refine PartialOrder.rel_trans ?_ (hmeet _ _)
+    exact meet_mono_left (meet_le_right _ _)
+
+/-- The conjoint of a concretization `γ` along a return relation `R`: the concretization
+    `Q ↦ γ.post R Q` from abstract to concrete postconditions. -/
+noncomputable def conjoint (γ : Concretization CPred APred) {CVal AVal : Type v}
+    (R : CVal → AVal → CPred) : Concretization (CVal → CPred) (AVal → APred) where
+  pred Q := γ.post R Q
+  pred_mono h := post_mono γ R h
+
+/-- The conjoint of a concretization that preserves suprema preserves suprema. -/
+theorem conjoint_supPreserving.{v'} [Heyting CPred] {γ : Concretization CPred APred}
+    {CVal AVal : Type v} (R : CVal → AVal → CPred) (hγ : γ.SupPreserving.{_, v'}) :
+    (γ.conjoint R).SupPreserving.{_, v'} := by
+  intro ι Q cv
+  simp only [conjoint, post, iSup_apply]
+  apply iSup_le
+  intro av
+  refine PartialOrder.rel_trans (meet_mono_right (hγ _)) ?_
+  apply meet_le_of_le_himp_left
+  apply iSup_le
+  intro i
+  apply le_himp_of_meet_le_left
+  exact le_iSup_of_le i (le_iSup_of_le av PartialOrder.rel_refl)
+
+end Conjoint
+
+end Concretization
+
 end RefinementWP
