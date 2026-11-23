@@ -35,6 +35,12 @@ and horizontal pasting along `bind` (compatibility of refinement with sequencing
 * `Concretization.ofStateRel_supPreserving`, `Concretization.ofStateRel_meetPreserving`: the
   concretization of a state relation preserves suprema, and binary meets when the relation is
   functional.
+* `Concretization.id_relComp_eqRel`: the equality relation through the identity concretization
+  is a left unit of `relComp`.
+* `Concretization.relComp_eqRel`: the equality relation is a right unit of `relComp` through a
+  concretization that is strict and preserves `⊤`.
+* `Concretization.relComp_assoc`: `relComp` is associative, with the composite concretization
+  on the right, when the outermost concretization preserves suprema and binary meets.
 * `Refines.refl`: reflexivity at the identity concretization.
 * `Refines.bind`: horizontal pasting along `bind` of `WPMonad` instances.
 -/
@@ -150,6 +156,86 @@ theorem Refines.refl (P : CPred) (c : CProg) :
   exact le_meet _ _ _ (CompleteLattice.le_ofProp _ _ rfl) PartialOrder.rel_refl
 
 end Square
+
+section RelCompLaws
+
+namespace Concretization
+
+variable {DPred CPred BPred : Type w} [Assertion DPred] [Assertion CPred] [Assertion BPred]
+  {DVal CVal BVal AVal : Type v}
+
+/-- Left unit law of `relComp`: through the identity concretization, the equality relation
+    composed with `Q` is `Q`. -/
+theorem id_relComp_eqRel (Q : CVal → AVal → CPred) :
+    Concretization.id.relComp (eqRel (CPred := CPred)) Q = Q := by
+  funext cv av
+  apply PartialOrder.rel_antisymm
+  · apply iSup_le
+    intro bv
+    change CompleteLattice.ofProp (cv = bv) ⊓ Q bv av ⊑ Q cv av
+    rw [CompleteLattice.ofProp_meet_le_eq_imp]
+    rintro rfl
+    exact PartialOrder.rel_refl
+  · refine PartialOrder.rel_trans ?_ (le_iSup _ cv)
+    exact le_meet _ _ _
+      (PartialOrder.rel_trans (le_top _) (CompleteLattice.top_le_ofProp _ rfl))
+      PartialOrder.rel_refl
+
+/-- Right unit law of `relComp`: `Q` composed with the equality relation through `γ` is `Q`,
+    when `γ.pred` is strict (`γ.pred ⊥ ⊑ ⊥`) and preserves the top element
+    (`⊤ ⊑ γ.pred ⊤`). -/
+theorem relComp_eqRel (γ : Concretization CPred BPred) (hbot : γ.pred ⊥ ⊑ ⊥)
+    (htop : ⊤ ⊑ γ.pred ⊤) (Q : CVal → BVal → CPred) :
+    γ.relComp Q (eqRel (CPred := BPred)) = Q := by
+  funext cv av
+  apply PartialOrder.rel_antisymm
+  · apply iSup_le
+    intro bv
+    by_cases h : bv = av
+    · subst h
+      exact meet_le_left _ _
+    · refine meet_le_of_right_le (PartialOrder.rel_trans ?_ (bot_le _))
+      simpa [eqRel, CompleteLattice.ofProp, h] using hbot
+  · refine PartialOrder.rel_trans ?_ (le_iSup _ av)
+    refine le_meet _ _ _ PartialOrder.rel_refl (PartialOrder.rel_trans (le_top _) ?_)
+    simpa [eqRel, CompleteLattice.ofProp] using htop
+
+/-- Associativity of `relComp`: composing `Q₃` with the composite of `Q₂` and `Q₁` through `γ₃`
+    equals composing the composite of `Q₃` and `Q₂` with `Q₁` through the composite
+    concretization `γ₃.comp γ₂`, when `γ₃` preserves suprema and binary meets. -/
+theorem relComp_assoc [Heyting DPred] (γ₃ : Concretization DPred CPred)
+    (γ₂ : Concretization CPred BPred) (hsup : γ₃.SupPreserving.{_, v})
+    (hmeet : γ₃.MeetPreserving) (Q₃ : DVal → CVal → DPred) (Q₂ : CVal → BVal → CPred)
+    (Q₁ : BVal → AVal → BPred) :
+    γ₃.relComp Q₃ (γ₂.relComp Q₂ Q₁) = (γ₃.comp γ₂).relComp (γ₃.relComp Q₃ Q₂) Q₁ := by
+  funext dv av
+  apply PartialOrder.rel_antisymm
+  · apply iSup_le
+    intro cv
+    refine PartialOrder.rel_trans (meet_mono_right (hsup _)) ?_
+    apply meet_le_of_le_himp_left
+    apply iSup_le
+    intro bv
+    apply le_himp_of_meet_le_left
+    refine PartialOrder.rel_trans ?_ (le_iSup _ bv)
+    apply le_meet
+    · refine PartialOrder.rel_trans ?_ (le_iSup _ cv)
+      exact meet_mono_right (γ₃.pred_mono (meet_le_left _ _))
+    · exact meet_le_of_right_le (γ₃.pred_mono (meet_le_right _ _))
+  · apply iSup_le
+    intro bv
+    apply iSup_meet_le
+    intro cv
+    refine PartialOrder.rel_trans ?_ (le_iSup _ cv)
+    apply le_meet
+    · exact meet_le_of_left_le (meet_le_left _ _)
+    · refine PartialOrder.rel_trans (meet_mono_left (meet_le_right _ _)) ?_
+      exact PartialOrder.rel_trans (hmeet _ _)
+        (γ₃.pred_mono (le_iSup (fun bv => meet (Q₂ cv bv) (γ₂.pred (Q₁ bv av))) bv))
+
+end Concretization
+
+end RelCompLaws
 
 section Vertical
 
