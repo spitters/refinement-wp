@@ -12,9 +12,14 @@ public import RefinementWP.Compose
 
 In abstract interpretation a concretization `γ` comes with an abstraction `α`, its left adjoint:
 `α c ⊑ a ↔ c ⊑ γ.pred a` (a Galois connection). Between complete lattices, `γ` has a left adjoint
-exactly when it preserves all infima, and the adjoint is then `α c = ⨅ {a | c ⊑ γ.pred a}`; dually,
-`γ` has a right adjoint exactly when it preserves all suprema, and the adjoint is then
-`β c = ⨆ {a | γ.pred a ⊑ c}`. Adjoints are unique and compose along `Concretization.comp`.
+exactly when it preserves all infima, and the adjoint is then `α c = ⨅ {a | c ⊑ γ.pred a}` (P. and
+R. Cousot, "Abstract interpretation and application to logic programs", J. Logic Programming 13,
+1992, §4.2.2, Propositions 6 and 7); dually, `γ` has a right adjoint exactly when it preserves all
+suprema, and the adjoint is then `β c = ⨆ {a | γ.pred a ⊑ c}`. Adjoints are unique and compose
+along `Concretization.comp`. For a state relation, the existential concretization has the
+universal concretization of the converse relation as right adjoint, and the image is the
+abstraction of the universal concretization (R.-J. Back and J. von Wright, "Encoding, decoding
+and data refinement", Formal Aspects of Computing 12, 2000, §2.5 and Lemma 4).
 
 ## Main definitions
 

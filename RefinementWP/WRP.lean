@@ -8,9 +8,9 @@ module
 public import Std.WP
 
 /-!
-# The refinement weakest precondition `wrp`
+# The weakest refinement precondition `wrp`
 
-`wrp` is the refinement weakest precondition of S. Graf's distillery, written here from its
+`wrp` is the weakest refinement precondition of S. Graf's distillery, written here from its
 published formula, with credit:
 `wrp γ c a Q E = ⨅ Qa Ea, γ.pred (wp a Qa Ea) ⇨ wp c (γ.post Q Qa) (ePosts γ E Ea)`
 (<https://github.com/sgraf812/distillery/blob/a5cc0e23183f92e37dfbf647a39dd8d8d30df960/Distillery/WRP.lean#L46-L49>),
@@ -35,7 +35,7 @@ transformer with value `False`, so its weakest precondition is `⊥`.
 * `Concretization`: a monotone map from abstract to concrete assertions; `Concretization.post`,
   the concrete postcondition of a return relation and an abstract postcondition;
   `Concretization.ofStateRel`, the concretization of a state relation.
-* `wrp`: the refinement weakest precondition; `Refines P γ eps c a Q`: `P ⊑ wrp γ eps c a Q`.
+* `wrp`: the weakest refinement precondition; `Refines P γ eps c a Q`: `P ⊑ wrp γ eps c a Q`.
 * `MonoPT`: monotone predicate transformers on state predicates, with their `WP` instance.
 * `optD f`: the `MonoPT` program of a partial state transformer `f`.
 
@@ -91,7 +91,7 @@ def ofStateRel {σ A : Type} (SR : σ → A → Prop) : Concretization (σ → P
 
 end Concretization
 
-/-! ## The refinement weakest precondition -/
+/-! ## The weakest refinement precondition -/
 
 section WRPDef
 
@@ -99,7 +99,7 @@ variable {CProg AProg : Type u} {CVal AVal : Type v} {CPred APred : Type w} {CE 
   [Assertion CPred] [Assertion APred] [Assertion CE] [Assertion AE]
   [WP CProg CVal CPred CE] [WP AProg AVal APred AE]
 
-/-- The refinement weakest precondition: the weakest concrete assertion under which every
+/-- The weakest refinement precondition: the weakest concrete assertion under which every
     `wp` fact of the abstract program `a` transports through `γ`, the return relation `Q` and
     the exception map `eps` to a `wp` fact of the concrete program `c`. -/
 noncomputable def wrp (γ : Concretization CPred APred) (eps : AE → CE) (c : CProg) (a : AProg)
@@ -107,7 +107,7 @@ noncomputable def wrp (γ : Concretization CPred APred) (eps : AE → CE) (c : C
   iInf fun Qa : AVal → APred => iInf fun Ea : AE =>
     himp (γ.pred (wp a Qa Ea)) (wp c (γ.post Q Qa) (eps Ea))
 
-/-- Refinement under the precondition `P`: `P` entails the refinement weakest precondition. -/
+/-- Refinement under the precondition `P`: `P` entails the weakest refinement precondition. -/
 def Refines (P : CPred) (γ : Concretization CPred APred) (eps : AE → CE) (c : CProg)
     (a : AProg) (Q : CVal → AVal → CPred) : Prop :=
   P ⊑ wrp γ eps c a Q

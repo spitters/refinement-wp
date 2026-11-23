@@ -8,7 +8,7 @@ module
 public import RefinementWP.Compose
 
 /-!
-# The separating refinement weakest precondition `swrp`
+# The separating weakest refinement precondition `swrp`
 
 `swrp γ eps c a Q` is the assertion
 `⨅ Qa Ea, γ (a Qa Ea) -∗ wp c (fun v => ⨆ w, Q v w ∗ γ (Qa w)) (eps Ea)`.
@@ -23,8 +23,14 @@ Where `∗` is the meet, `swrp` at the concretization `γ.pred` and the transfor
 `wrp γ eps c a` (`swrp_eq_wrp`).
 
 The frame closure `fwp c Q E := ⨅ F, F -∗ wp c (fun a => Q a ∗ F) E` quantifies the frame inside
-the weakest precondition, as in the frame-quantified judgement of Yang and O'Hearn in the form of a
-weakest precondition given by Charguéraud. At the frame closure every program frames every
+the weakest precondition: `P ⊑ fwp c Q E` exactly when `P ∗ F ⊑ wp c (Q ∗ F) E` for every frame
+`F` (`le_fwp_iff`), the frame-quantified triple of Birkedal, Reus, Schwinghammer and Yang
+(ICALP 2008, Definition 1). Its weakest precondition is Definition 9.1 of Charguéraud
+("Separation logic for sequential programs", ICFP 2020) and Equation (1) of Li, Doenges and
+Azevedo de Amorim ("Fibered separation logic", 2026, §6.1). The framing hypothesis of
+`le_fwp_of_frames` is the locality of Yang and O'Hearn ("A semantic basis for local reasoning",
+FoSSaCS 2002, §5.1), and the lemma is the order-theoretic form, for one program, of the universal
+property of Li et al. (Theorem 6.11). At the frame closure every program frames every
 resource, so the frame rule of `swrp` holds with no hypothesis on the program
 (`swrp_frame_fwp`). The toolchain has the same construction over upper adjoints,
 `Lean.Order.PredTrans.frameClosure` and `Std.WP.WP.withFrameClosure`, whose laws need equational
@@ -78,7 +84,7 @@ with exception postconditions not framed, the two closures are equal (`fwp_eq_fr
 
 ## Search words
 
-separation logic, separating conjunction, magic wand, residual, refinement weakest precondition,
+separation logic, separating conjunction, magic wand, residual, weakest refinement precondition,
 frame rule, vertical pasting, lax monoidal, oplax monoidal, frame closure, framed weakest
 precondition, separating unit
 -/
@@ -182,7 +188,7 @@ at `v` it is the supremum over `w` of `Q v w` separated from `γ (Qa w)`. -/
 noncomputable def swrpPost (γ : A → Ω) (Q : CVal → AVal → Ω) (Qa : AVal → A) : CVal → Ω :=
   fun v => iSup fun w => sep (Q v w) (γ (Qa w))
 
-/-- The separating refinement weakest precondition: the resource that turns each weakest
+/-- The separating weakest refinement precondition: the resource that turns each weakest
 precondition of the abstract transformer `a`, seen through `γ`, into a weakest precondition of
 the concrete program `c`, with exception postconditions mapped by `eps`. -/
 noncomputable def swrp (γ : A → Ω) (eps : AE → CE) (c : CProg) (a : (AVal → A) → AE → A)

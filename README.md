@@ -3,7 +3,7 @@
 Verified compilers, decompilers and program logics each prove that one program implements
 another, and each usually defines its own simulation relation. We present a refinement relation
 for any two programs with weakest-precondition transformers in Lean's `Std.WP`, in possibly
-different monads and over different state spaces. It connects the refinement weakest
+different monads and over different state spaces. It connects the weakest refinement
 precondition of S. Graf's [distillery](https://github.com/sgraf812/distillery) with the
 relational refinement of [CatCrypt-core](https://github.com/spitters/CatCrypt-core), including
 its graded Dijkstra-monad kernel
@@ -15,7 +15,7 @@ in which XDijkstra is a quantale-graded relational Dijkstra monad.
 ## Refinement as a residual
 
 A concretization `γ` maps abstract assertions monotonically to concrete ones, and a relation `Q`
-relates concrete to abstract return values. The refinement weakest precondition
+relates concrete to abstract return values. The weakest refinement precondition
 [`wrp`](RefinementWP/WRP.lean#L105) of a concrete program `c` and an abstract program `a` is the
 weakest concrete assertion `P` such that `P ⊓ γ (wp a Qa) ⊑ wp c (γ.post Q Qa)` for every
 abstract postcondition `Qa`. It is the residual of that meet: `P` entails `wrp` exactly when
@@ -26,9 +26,9 @@ every such inequality holds ([`wrp_intro`](RefinementWP/WRP.lean#L120),
 In categorical terms, `wrp` is the end `∫_Qa γ (wp a Qa) ⇨ wp c (γ.post Q Qa)`, the object of
 natural transformations from `γ ∘ wp a` to `wp c ∘ γ.post Q` in the Heyting algebra of concrete
 assertions. At the trivial precondition, refinement is the lax square
-`γ ∘ wp a ≤ wp c ∘ γ.post Q`, the forward data refinement of Gardiner and Morgan, where `wp a`
-and `wp c` are effect observations in the sense of Dijkstra monads
-([`refines_top_iff`](RefinementWP/Compose.lean#L126)).
+`γ ∘ wp a ≤ wp c ∘ γ.post Q` of data refinement of predicate transformers (Gardiner and Morgan,
+[TCS 87, 1991](https://doi.org/10.1016/0304-3975(91)90029-2)), with `γ` as their representation
+transformer ([`refines_top_iff`](RefinementWP/Compose.lean#L134)).
 
 ## Pasting
 

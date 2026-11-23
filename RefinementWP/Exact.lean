@@ -15,7 +15,9 @@ The laws of `WPMonad` bound the weakest precondition of `pure x` and of `x >>= f
 monad is exact when the converse bounds hold, so that the weakest precondition of a program
 built from `pure` and `>>=` is computed by the two equations. Monotone predicate transformers
 form an exact monad, and so do the monads and transformers that have a `WPMonad` instance in
-`Std.WP`.
+`Std.WP`. In the fibrational setting of Aguirre, Katsumata and Kura ("Weakest preconditions in
+fibrations", MSCS 32(4), 2022, Theorem 6), the two lower bounds hold for every monad lifting and
+are equalities exactly when the lifting is Cartesian.
 
 ## Main definitions
 
