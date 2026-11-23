@@ -30,18 +30,73 @@ assertions. At the trivial precondition, refinement is the lax square
 [TCS 87, 1991](https://doi.org/10.1016/0304-3975(91)90029-2)), with `γ` as their representation
 transformer ([`refines_top_iff`](RefinementWP/Compose.lean#L134)).
 
-## Pasting
+## Refinement squares
 
-Refinements compose as 2-cells. Along a chain of programs `a`, `b`, `c` with concretizations
-`γ₁` and `γ₂`, the two squares paste vertically to a refinement of `a` by `c` along the
-composite concretization ([`Refines.vcomp_top`](RefinementWP/Compose.lean#L168)). The outer
-concretization must preserve suprema; every concretization of a state relation does
-([`ofStateRel_supPreserving`](RefinementWP/Compose.lean#L104)). Each program refines itself along
-the identity ([`Refines.refl`](RefinementWP/Compose.lean#L143)). When the weakest precondition of
-an abstract composition is the composite of the weakest preconditions, refinement of a program
-and of its continuations gives refinement of their sequential composition
-([`Refines.bind`](RefinementWP/Compose.lean#L208)). Vertical pasting chains the stages of a
+A refinement is a square with the abstract program on top, the concrete program at the bottom,
+and on each side a concretization with a relation between return values. Squares paste
+vertically, along the composite concretization and the composite relation `γ₂.relComp Q₂ Q₁`
+([`Refines.vcomp_top`](RefinementWP/Compose.lean#L271),
+[`Refines.vcomp`](RefinementWP/Compose.lean#L283)), when the outer concretization preserves
+suprema, and binary meets in the presence of preconditions; every concretization of a state
+relation preserves suprema ([`ofStateRel_supPreserving`](RefinementWP/Compose.lean#L112)). Squares
+paste horizontally by sequencing when the weakest precondition of an abstract composition is the
+composite of the weakest preconditions ([`Refines.bind`](RefinementWP/Compose.lean#L311)). Each
+program refines itself along the identity ([`Refines.refl`](RefinementWP/Compose.lean#L151)), and a
+refinement holds under a supremum of preconditions when it holds under each
+([`Refines.iSup_pre`](RefinementWP/Compose.lean#L250)). Vertical pasting chains the stages of a
 compiler, and horizontal pasting is compatibility with sequencing.
+
+The sides of the squares form a category. The identity concretization with the equality relation
+is a left unit of `relComp` ([`id_relComp_eqRel`](RefinementWP/Compose.lean#L171)) and a right
+unit for a concretization that preserves top and bottom
+([`relComp_eqRel`](RefinementWP/Compose.lean#L189)), and `relComp` is associative through an
+outer concretization that preserves suprema and binary meets
+([`relComp_assoc`](RefinementWP/Compose.lean#L208)). A side `(γ, R)` acts on postconditions by
+the concretization `Q ↦ γ.post R Q` ([`conjoint`](RefinementWP/Compose.lean#L385)), which preserves
+suprema when `γ` does ([`conjoint_supPreserving`](RefinementWP/Compose.lean#L391)) and sends the
+composite side to the composite action
+([`comp_post_relComp`](RefinementWP/Compose.lean#L364)).
+
+## Abstractions and adjoints
+
+A concretization between complete lattices has an abstraction, its left adjoint, exactly when it
+preserves all infima
+([`infPreserving_iff_exists_abstraction`](RefinementWP/Galois.lean#L155); P. and R. Cousot,
+[J. Logic Programming 13, 1992](https://doi.org/10.1016/0743-1066(92)90030-7), §4.2.2,
+Propositions 6 and 7), and a right adjoint exactly when it preserves all suprema
+([`supPreserving_iff_exists_rightAdjoint`](RefinementWP/Galois.lean#L160)). Adjoints compose
+along composite concretizations ([`IsAbstraction.comp`](RefinementWP/Galois.lean#L173),
+[`IsRightAdjoint.comp`](RefinementWP/Galois.lean#L179)). For a state relation, the existential
+concretization has the universal concretization of the converse relation as right adjoint
+([`ofStateRel_isRightAdjoint`](RefinementWP/Galois.lean#L196)), and the image is the abstraction of
+the universal concretization ([`ofStateRelAll_isAbstraction`](RefinementWP/Galois.lean#L206)), as
+in R.-J. Back and J. von Wright,
+[Formal Aspects of Computing 12, 2000](https://doi.org/10.1007/s001650070008), §2.5 and Lemma 4.
+
+## Separating refinement
+
+When assertions have a separating conjunction `∗` with a right adjoint `-∗`
+([`SepAssertion`](RefinementWP/Sep.lean#L107)), the separating weakest refinement precondition
+[`swrp`](RefinementWP/Sep.lean#L194) replaces the Heyting residual by the magic wand. Where `∗` is
+the meet, `swrp` is `wrp` ([`swrp_eq_wrp`](RefinementWP/Sep.lean#L356)). When the weakest
+precondition of the concrete program frames, a refinement holds beside every disjoint assertion
+([`swrp_frame`](RefinementWP/Sep.lean#L241)). Separating refinements paste vertically when the outer
+concretization preserves suprema and is lax at the inner precondition and oplax at the inner return
+relation with respect to `∗` ([`swrp_vcomp`](RefinementWP/Sep.lean#L320)).
+
+The frame closure [`fwp`](RefinementWP/Sep.lean#L410) of a weakest precondition quantifies over
+frames: `P` entails `fwp c Q` exactly when `P ∗ F` entails `wp c (Q ∗ F)` for every frame `F`
+([`le_fwp_iff`](RefinementWP/Sep.lean#L417)), the frame-quantified triple of Birkedal, Reus,
+Schwinghammer and Yang ([ICALP 2008](https://doi.org/10.1007/978-3-540-70583-3_29), Definition 1).
+Every program frames every resource at the frame closure
+([`fwp_frame`](RefinementWP/Sep.lean#L435)), so separating refinement at the frame closure needs no
+hypothesis on the program ([`swrp_frame_fwp`](RefinementWP/Sep.lean#L459)). A transformer below the
+weakest precondition that is local in the sense of Yang and O'Hearn (FoSSaCS 2002, §5.1) is below
+the frame closure ([`le_fwp_of_frames`](RefinementWP/Sep.lean#L441)); this is the order-theoretic
+form, for one program, of the universal property of Li, Doenges and Azevedo de Amorim
+([arXiv:2611.08685](https://arxiv.org/abs/2611.08685), Theorem 6.11). The frame closure is Lean's
+`PredTrans.frameClosure` at separation from a frame
+([`fwp_eq_frameClosure`](RefinementWP/Sep.lean#L549)).
 
 ## Forward simulation
 
