@@ -31,6 +31,8 @@ and horizontal pasting along `bind` (compatibility of refinement with sequencing
 * `refines_top_iff`: `Refines top` is the lax square.
 * `Concretization.post_comp_le`: the postcondition of a composite square is below the
   postcondition of the composite concretization and return relation.
+* `Refines.iSup_pre`: a refinement holds under a supremum of preconditions when it holds under
+  each.
 * `Refines.vcomp_top`, `Refines.vcomp`: vertical pasting, without and with preconditions.
 * `Concretization.ofStateRel_supPreserving`, `Concretization.ofStateRel_meetPreserving`: the
   concretization of a state relation preserves suprema, and binary meets when the relation is
@@ -53,7 +55,7 @@ namespace RefinementWP
 
 open Std.WP Lean.Order
 
-universe u v w w'
+universe u v w w' t
 
 namespace Concretization
 
@@ -236,6 +238,21 @@ theorem relComp_assoc [Heyting DPred] (γ₃ : Concretization DPred CPred)
 end Concretization
 
 end RelCompLaws
+
+section RefinesSup
+
+variable {CProg AProg : Type u} {CVal AVal : Type v} {CPred APred : Type w} {CE AE : Type w'}
+  [Assertion CPred] [Assertion APred] [Assertion CE] [Assertion AE]
+  [WP CProg CVal CPred CE] [WP AProg AVal APred AE]
+
+/-- A refinement holds under the supremum of a family of preconditions when it holds under
+    each member of the family. -/
+theorem Refines.iSup_pre {ι : Sort t} {P : ι → CPred} {γ : Concretization CPred APred}
+    {eps : AE → CE} {c : CProg} {a : AProg} {Q : CVal → AVal → CPred}
+    (h : ∀ i, Refines (P i) γ eps c a Q) : Refines (iSup P) γ eps c a Q :=
+  iSup_le _ _ h
+
+end RefinesSup
 
 section Vertical
 
