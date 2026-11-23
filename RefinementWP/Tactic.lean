@@ -6,6 +6,7 @@ Authors: CatCrypt Contributors
 module
 
 public import RefinementWP.Compose
+public import RefinementWP.Exact
 public import Std.WP
 
 /-!
@@ -18,12 +19,16 @@ tactic `wrp_vcgen` states this triple with the weakest precondition of the abstr
 computed, and applies the toolchain's `vcgen` to it.
 
 The abstract weakest precondition is computed by instance search in `AbstractWP`: an instance
-registers the weakest-precondition equation of a form of abstract program, and `optD` has one.
-An abstract program without an instance keeps its `wp`, to be rewritten by the given equations.
+registers the weakest-precondition equation of a form of abstract program. `optD` has one, and
+`pure` and `>>=` over an exact monad (`WPMonadExact`) have one each, built from the equations of
+the parts, so that the weakest precondition of a sequence of `optD` steps is computed. An
+abstract program without an instance keeps its `wp`, to be rewritten by the given equations.
 
 ## Main definitions
 
 * `AbstractWP a pre`: the registered equation `wp a = pre`.
+* `AbstractWP.optD`, `AbstractWP.pure`, `AbstractWP.bind`: the registered equations of `optD`,
+  of `pure` and of a sequence.
 * `wrp_vcgen [eqs] using [specs]`: the reduction of `Refines top γ eps c a Q` to verification
   conditions.
 
@@ -80,6 +85,30 @@ instance AbstractWP.optD {A B : Type} (f : A → Option (B × A)) :
       | some p => Qa p.1 p.2
       | none => False :=
   ⟨fun Qa Ea => funext (wp_optD_apply f Qa Ea)⟩
+
+section Exact
+
+variable {m : Type v → Type u} [Monad m] {Pred : Type w} {EPosts : Type w'} [Assertion Pred]
+  [Assertion EPosts] [WPMonad m Pred EPosts] [WPMonadExact m]
+
+/-- The registered weakest-precondition equation of `pure x` in an exact monad. -/
+instance AbstractWP.pure {α : Type v} (x : α) :
+    AbstractWP (Pure.pure x : m α) fun Q _ => Q x :=
+  ⟨fun Q E => WPMonadExact.wp_pure_eq x Q E⟩
+
+/-- The registered weakest-precondition equation of a sequence in an exact monad, from the
+    equations of its parts. -/
+instance AbstractWP.bind {α β : Type v} (x : m α) (f : α → m β)
+    {px : (α → Pred) → EPosts → Pred} {pf : α → (β → Pred) → EPosts → Pred}
+    [hx : AbstractWP x px] [hf : ∀ v, AbstractWP (f v) (pf v)] :
+    AbstractWP (x >>= f) fun Q E => px (fun v => pf v Q E) E :=
+  ⟨fun Q E => by
+    rw [WPMonadExact.wp_bind_eq, ← hx.wp_eq]
+    congr
+    funext v
+    exact (hf v).wp_eq Q E⟩
+
+end Exact
 
 namespace Concretization
 
