@@ -6,6 +6,7 @@ Authors: CatCrypt Contributors
 module
 
 public import RefinementWP.Compose
+public import RefinementWP.Leaf
 public import RefinementWP.Tactic
 public import Std.WP
 
@@ -193,13 +194,14 @@ open Lean
 3. reflexivity proves it when `c` and `a` are the same program along the identity;
 4. for `c = c₁ >>= k` and `a = a₁ >>= g`, a registered refinement of `c₁` and `a₁`, or
    reflexivity, leaves the refinement of the continuations under its return relation;
-5. sequences nested to the left on both sides are nested to the right.
+5. sequences nested to the left on both sides are nested to the right;
+6. at a goal where no step above applies, `wrp_leaf` closes the goal.
 
 The condition of a registered refinement on the arguments, and the comparison of its return
-relation with `Q`, are left as goals when they are not immediate. A registered refinement holds
-under `⊤`, so these goals do not mention a precondition `P` on the state. Programs are matched up to
-reducible definitions and instances, so a composite definition is unfolded before the tactic is
-used.
+relation with `Q`, are given to `wrp_leaf` and left as goals when it fails on them. A registered
+refinement holds under `⊤`, so these goals do not mention a precondition `P` on the state.
+Programs are matched up to reducible definitions and instances, so a composite definition is
+unfolded before the tactic is used.
 
 `wrp_step using R` sequences at the return relation `R` and leaves both parts as goals; it is
 the step for a first part that the registry lacks.
@@ -223,6 +225,7 @@ macro_rules
                  simp -failIfUnchanged only [Lean.Order.top_apply]
                  exact Lean.Order.le_top _)
               | exact fun _ _ _ _ => True.intro
+              | wrp_leaf
               | skip
         | with_reducible_and_instances exact Refines.refl _ _
         | (with_reducible_and_instances refine Refines.bind_call ?_ fun cv av => ?_) <;>
@@ -233,6 +236,7 @@ macro_rules
               | skip
         | with_reducible_and_instances refine Refines.bind_refl fun cv av => ?_
         | with_reducible_and_instances refine Refines.bind_assoc ?_
+        | wrp_leaf
         | fail "wrp_step: expected a goal `Refines P γ eps c a Q` of one of four shapes: \
             (1) P is pure and other than ⊤; \
             (2) c and a are registered by `RefinesCall`, or are equal along the identity; \
@@ -249,7 +253,7 @@ macro_rules
 
 /--
 `wrp_steps` repeats `wrp_step` on the goal and on the goals it leaves, and fails when the first
-step fails. The goals left are those at which no step applies.
+step fails. The goals left are those at which no step applies and `wrp_leaf` fails.
 -/
 syntax (name := wrpSteps) "wrp_steps" : tactic
 
@@ -364,6 +368,23 @@ theorem refines_read_add :
   wrp_steps
   rw [Nat.zero_add]
   wrp_step
+
+/-- The registered refinement of the predecessor by `dec`. -/
+scoped instance dec_call :
+    RefinesCall dec (optD fun a : Nat => if a = 0 then none else some ((), a - 1))
+      (Concretization.ofStateRel fun s a : Nat => s = a) (fun _ : Unit => bot) True
+      (fun _ _ _ => True) :=
+  ⟨fun _ => refines_dec⟩
+
+/-- A registered refinement followed by a last part written out, which `wrp_leaf` closes by
+    `wrp_vcgen` and `grind`. -/
+theorem refines_dec_inc :
+    Refines top (Concretization.ofStateRel fun s a : Nat => s = a) (fun _ : Unit => bot)
+      (dec >>= fun _ => modify fun n => n + 1)
+      ((optD fun a : Nat => if a = 0 then none else some ((), a - 1)) >>= fun _ =>
+        optD fun a : Nat => some ((), a + 1))
+      (fun _ _ _ => True) := by
+  wrp_steps
 
 /-- A sequence of `optD` steps refined by a sequence of assignments, proved by `wrp_vcgen`, which
     computes the weakest precondition of the abstract sequence. -/

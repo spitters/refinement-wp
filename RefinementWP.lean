@@ -11,6 +11,7 @@ public import RefinementWP.Classes
 public import RefinementWP.Galois
 public import RefinementWP.Exact
 public import RefinementWP.Tactic
+public import RefinementWP.Leaf
 public import RefinementWP.Step
 public import RefinementWP.Sep
 
@@ -21,7 +22,8 @@ The root of the package: the weakest refinement precondition `RefinementWP.wrp` 
 refinement judgement `RefinementWP.Refines` (`RefinementWP.WRP`), their composition
 (`RefinementWP.Compose`, `RefinementWP.Classes`), concretizations with an abstraction or a
 right adjoint (`RefinementWP.Galois`), monads whose weakest precondition is exact at `pure` and
-bind (`RefinementWP.Exact`), the tactic `wrp_vcgen` (`RefinementWP.Tactic`), the registry
+bind (`RefinementWP.Exact`), the tactic `wrp_vcgen` (`RefinementWP.Tactic`), the closing
+tactic `wrp_leaf`, extended by `macro_rules` (`RefinementWP.Leaf`), the registry
 `RefinesCall` with the tactics `wrp_step` and `wrp_steps` (`RefinementWP.Step`), and the
 separating weakest refinement precondition `RefinementWP.swrp` over assertions with a separating
 conjunction (`RefinementWP.Sep`).
